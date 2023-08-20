@@ -14,38 +14,47 @@ namespace Record
     /// 2.要求回放的物体有又预制件加载而来，并且其名称加载到场景中与预制件名称一致(去掉(Clone))。
     /// 3.要求回放观看的物体的名称一定是为一的，也就是预制件名称不能又重叠。包括其预制件下的子物体。
     /// </summary>
+    [DisallowMultipleComponent]
     public class Recorder :BaseView
     {
         private static Recorder instance;
-        public static Recorder Instance => instance;
-        public string SavePath => mPathModel.SavePath;
+        public static Recorder Instance {
+            get {
+                if (instance != null) return instance;
+                instance = FindObjectOfType<Recorder>();
+                if (instance == null)
+                {
+                    new GameObject("Singleton of " + typeof(Recorder)).AddComponent<Recorder>();
+                }
+                return instance;
+            }
+        }
 
         private PathModel mPathModel;
         private StateModel mStateModel;
-        private RecordObjectLoadPool mRecordObjectLoadPool;
         private Timer mTimer;
+        private RecorderDataCenter mRecorderCenter;
+        private float MasterTime;
+        private bool IsEnterWatching;
+
         #region Mono 生命周期
         private void Awake()
         {
-            if (instance != null)
-            {
-                return;
-            }
+            if (instance != null) return;
             instance = this;
             MasterTime = 0;
-            mPathModel = this.GetModel<PathModel>();    
+            IsEnterWatching = false;
+            mRecorderCenter = this.GetModel<RecorderDataCenter>();
+            mPathModel = this.GetModel<PathModel>();
             mStateModel = this.GetModel<StateModel>();
-            mRecordObjectLoadPool = this.GetModel<RecordObjectLoadPool>();
             mTimer = this.GetSystem<Timer>();
-
-#if false
-            SetSaveOrReadPath(Application.streamingAssetsPath, "Record");
-            SetRecorderMode(StateType.Recording);
-#endif
+            
+            this.RegisterEvent<ObjectLoadedInRecordingEvent>((e) => {
+                mRecorderCenter.AddBaseViewOnRecording(e.EventParamBaseView);
+            }).UnRegisterWhenGameObjectDestroyed(this.gameObject);
         }
         #endregion
-        private float MasterTime;
-        private bool IsEnterWatching;
+
         private void Update()
         {
             if (!IsEnterWatching) return;
@@ -63,17 +72,16 @@ namespace Record
         public void SetSaveOrReadPath(string SavePath, string fileName) => mPathModel.SetSavePath(SavePath, fileName);
         public void SetPause(bool isPause) => mTimer.SetPause(isPause);
         public void SetForward(bool isForward) =>mTimer.SetForward(isForward);
-        public void SetRecorderMode(StateType stateType) => SetMode(stateType);
         #endregion
 
         #region 私有方法
-        private void SetMode(StateType stateType)
+        public void SetMode(StateType stateType)
         {
             switch (stateType)
             {
                 case StateType.None:
                     IsEnterWatching = false;
-                    mStateModel.State.Value = StateType.None;
+                    mStateModel.SetState(StateType.None);
                     break;
                 case StateType.Recording:
                     IsEnterWatching = false;
@@ -85,12 +93,15 @@ namespace Record
                     break;
                 case StateType.Resume:
                     IsEnterWatching = true;
+                    mStateModel.SetState(StateType.Resume);
                     break;
                 case StateType.Pause:
                     IsEnterWatching = false;
+                    mStateModel.SetState(StateType.Pause);
                     break;
                 default:
                     IsEnterWatching = false;
+                    mStateModel.SetState(StateType.None);
                     break;
             }
         }
@@ -98,6 +109,31 @@ namespace Record
 
 
     }
-    //public class 
+    #region 单例
+    public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoSingleton<T>
+    {
+        private static T instance;
+        public static T Instance
+        {
+            //实现按需加载
+            get
+            {
+                if (instance != null) return instance;
+                instance = FindObjectOfType<T>();
+                if (instance == null)
+                {
+                    new GameObject("Singleton of " + typeof(T)).AddComponent<T>();
+                }
+                return instance;
+            }
+        }
+        private void Awake()
+        {
+            instance = this as T;
+            Init();
+        }
+        protected abstract void Init();
+    }
+    #endregion
 }
 

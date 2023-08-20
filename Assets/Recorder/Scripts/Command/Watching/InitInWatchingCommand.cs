@@ -12,18 +12,18 @@ namespace Record
     {
         private StateModel mStateModel;
         private Timer mTimer;
-        private RecordObjectLoadPool mRecordObjectLoadPool;
+        private RecorderDataCenter mDataCenter;
         private PathModel mPathModel;
         protected override void OnExecute()
         {
             mPathModel = this.GetModel<PathModel>();
-            if (!File.Exists(mPathModel.SavePath)) {
-                Debug.LogError("该路径下没有指定文件: "+ mPathModel.SavePath);
+            if (!Directory.Exists(mPathModel.SavePath)) {
+                Debug.LogError("该路径下没有指定文件夹: "+ mPathModel.SavePath);
                 return;
             }
             mStateModel = this.GetModel<StateModel>();
             mTimer = this.GetSystem<Timer>();
-            mRecordObjectLoadPool = this.GetModel<RecordObjectLoadPool>();
+            mDataCenter = this.GetModel<RecorderDataCenter>();
             Recorder.Instance.StartCoroutine(InstantiatedObjectByTime());
         }
         /// <summary>
@@ -32,9 +32,14 @@ namespace Record
         /// <returns></returns>
         private IEnumerator InstantiatedObjectByTime()
         {
-            yield return Recorder.Instance.StartCoroutine(mRecordObjectLoadPool.ParsePathConfig());
-            mStateModel.State.Value = StateType.Watching;//正式开始观看模式
+            yield return Recorder.Instance.StartCoroutine(mDataCenter.ParseFileAndScriptableObjectConfig(mPathModel.SavePath));
+            mStateModel.SetState(StateType.Watching);//正式开始观看模式
             mTimer.Reset();
+            while (mStateModel.State.Value == StateType.Watching) {
+                int CurrentTime =Mathf.FloorToInt(mTimer.CurrentTimeInWatching);
+                yield return mDataCenter.RcorderReader.InstantiatedByTime(CurrentTime);
+                yield return new WaitForEndOfFrame();
+            }
         }
         
     }

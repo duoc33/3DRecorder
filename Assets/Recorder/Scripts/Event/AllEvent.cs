@@ -10,15 +10,5 @@ namespace Record
     {
         public RecordObjectView EventParamBaseView;
     }
-    /// <summary>
-    /// 回放时，回放对象加载进场景的事件
-    /// </summary>
-    public struct ObjectLoadedInWatchingEvent
-    {
-        public RecordObjectView EventParamBaseView;
-    }
-    public struct ObjectEndRecordingEvent
-    {
-    }
 }
 

@@ -10,26 +10,26 @@ namespace Record
         /// ¼ì²â¼ä¸ô
         /// </summary>
         private float mDetectInterval = 0;
-        protected override AbstractRecordData InitRecordDataType()
+        protected override void Start()
+        {
+            base.Start();
+        }
+        protected override AbstractRecordData DefineDataType()
         {
             return new DefinedRecordData();
         }
-        protected override void RecordObjectEnterPause()
-        {
-            base.RecordObjectEnterPause();
-        }
-        protected override void RecordObjectEnterRecording()
+
+        protected override void EnterRecording()
         {
             DetectInterval = mDetectInterval;
-            base.RecordObjectEnterRecording();
         }
-        protected override void RecordObjectEnterResume()
+
+        protected override void EnterWatching()
         {
-            base.RecordObjectEnterResume();
         }
-        protected override void RecordObjectEnterWatching()
+
+        protected override void ExitRecording()
         {
-            base.RecordObjectEnterWatching();
         }
     }
 }

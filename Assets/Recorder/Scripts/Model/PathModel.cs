@@ -7,7 +7,7 @@ namespace Record
 {
     public class PathModel : AbstractModel
     {
-        public string SavePath => mFilePath + "/" + mFileName;
+        public string SavePath => Path.Combine(mFilePath, mFileName).Replace("\\", "/");
         private string mFilePath;
         private string mFileName;
         protected override void OnInit()
@@ -21,12 +21,6 @@ namespace Record
         {
             mFilePath = filePath;
             mFileName = fileName;
-        }
-        public void InitDirectoryAndFile() 
-        {
-            if (Directory.Exists(SavePath)) {
-                
-            }
         }
     }
 }

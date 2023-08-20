@@ -6,71 +6,24 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using UnityEngine;
-using static Record.RecordObjectLoadPool;
 
 namespace Record
 {
     public class DataReadUtility : IUtility
     {
         /// <summary>
-        /// 通过保存文件获得ViewID和它们不同实例的数据读取路径字典
-        /// </summary>
-        /// <param name="directoryPath"></param>
-        /// <returns></returns>
-        public Dictionary<int, List<ViewIDToIntantiatedID>> ReadAllFileName(string directoryPath) 
-        {
-            long tempIndex = 0;
-            Dictionary<int, List<ViewIDToIntantiatedID>> tempDic = new Dictionary<int, List<ViewIDToIntantiatedID>>();
-            ViewIDToIntantiatedID viewIDToIntantiatedID;
-            string[] files = Directory.GetFiles(directoryPath);
-            if (files.Length <= 0) {
-                Debug.LogError(directoryPath+" 下没有找到文件");
-                return null;
-            }
-            foreach (string file in files)
-            {
-                if (file.EndsWith(".meta")) continue;
-                string temp = string.Empty;
-                temp = file.Replace("\\", "/");
-                string tempRead = temp;
-                temp = temp.Substring(directoryPath.Length + 1);
-                string[] tempGroup = temp.Split('_');
-                
-                long length = 0;
-                int viewID = int.Parse(tempGroup[0]);
-                int instantiatedID = int.Parse(tempGroup[1].Split(".")[0]);
-                int tempTime = Mathf.FloorToInt(ReadFirstData(tempRead, ref tempIndex).TheDataBeAddedTime);
-                using (FileStream fs = new FileStream(tempRead,FileMode.Open,FileAccess.Read))
-                {
-                    length = fs.Length;
-                    fs.Flush();
-                    fs.Close();
-                }
-                if (tempDic.ContainsKey(tempTime))
-                {
-                    viewIDToIntantiatedID = new ViewIDToIntantiatedID() { ID = viewID, IntantiatedIndex = instantiatedID, Path = tempRead,StreamLength = length};
-                    tempDic[tempTime].Add(viewIDToIntantiatedID);
-                }
-                else {
-                    tempDic[tempTime] = new List<ViewIDToIntantiatedID>();
-                    viewIDToIntantiatedID = new ViewIDToIntantiatedID() { ID = viewID, IntantiatedIndex = instantiatedID, Path = tempRead, StreamLength = length };
-                    tempDic[tempTime].Add(viewIDToIntantiatedID);
-                }
-            }
-            return tempDic;
-        }
-        /// <summary>
         /// 根据文件夹信息，读取RcorderDataReader
+        /// 一次性能够初始化ViewID,InstantiatedID，StreamLength，InstantiatedTime，DestoryedTime，ReadPath
         /// </summary>
         /// <param name="directoryPath"></param>
         /// <param name="singleObjectInfos"></param>
-        public void ReadFileConfigTable(string directoryPath,ref RcorderDataReader DataReader) 
+        public IEnumerator ReadFileConfigTable(string directoryPath,RecorderDataReader DataReader) 
         {
             string[] files = Directory.GetFiles(directoryPath);
             if (files.Length <= 0)
             {
                 Debug.LogError(directoryPath + " 下没有找到文件");
-                return;
+                yield break;
             }
             long tempIndex = 0;
             foreach (string file in files)
@@ -84,29 +37,28 @@ namespace Record
 
                 long length;
                 int viewID = int.Parse(tempGroup[0]);
-                int instantiatedID = int.Parse(tempGroup[1].Split(".")[0]);
+                int instantiatedID = int.Parse(tempGroup[1]);
+                int beInstantiatedID = int.Parse(tempGroup[2].Split(".")[0]);
                 using (FileStream fs = new FileStream(tempRead, FileMode.Open, FileAccess.Read))
                 {
                     length = fs.Length;
                     fs.Flush();
                     fs.Close();
                 }
-                if (length<=100) 
-                {
-                    Debug.Log("建议将编号为 -- "+ viewID +" --的该物体设置为\"记录\"静态");
-                }
                 int tempInsTime = Mathf.FloorToInt(ReadFirstData(tempRead, ref tempIndex).TheDataBeAddedTime);
-                int tempDesTime = Mathf.CeilToInt(ReadLastData(tempRead, ref tempIndex).TheDataBeAddedTime);
+                int tempDesTime = Mathf.FloorToInt(ReadLastData(tempRead, ref tempIndex).TheDataBeAddedTime);
                 DataReader.Add(
                     new SingleObjectInfo() {
                         ViewID= viewID,
                         InstantiatedID = instantiatedID,
                         StreamLength = length,
                         InstantiatedTime = tempInsTime,
+                        BeInstantiatedID = beInstantiatedID,
                         DestoryedTime = tempDesTime,
                         ReadPath = tempRead,
                     }
                 );
+                yield return null;
             }
         }
         public AbstractRecordData ReadNextData(string path,ref long currentStreamIndex) 

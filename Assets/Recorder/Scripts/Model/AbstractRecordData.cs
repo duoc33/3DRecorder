@@ -2,7 +2,9 @@ using QFramework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -11,9 +13,9 @@ namespace Record
     #region BaseData
     public interface IData
     {
-        bool CompareTo(AbstractRecordData other, Transform transform = null);
-        void GetCurrentRecordData(ref AbstractRecordData recordData, Transform transform, float NowTime);
-        void ApplyRecordData(AbstractRecordData recordData, double masterTime, bool IsForward, Transform transform, Dictionary<int, List<RecordObjectView>> WatchingModeDic);
+        bool CompareTo(AbstractRecordData other);
+        void GetCurrentRecordData(AbstractRecordData recordData, Transform transform, float NowTime);
+        void ApplyRecordData(AbstractRecordData recordData, Transform transform, RecorderDataReader mDataReader);
     }
     [Serializable]
     public abstract class AbstractRecordData : IData
@@ -25,16 +27,17 @@ namespace Record
         public Vector3 Position;
         public Vector3 Rotation;
         public Vector3 Scale;
-        protected abstract bool Comparer(AbstractRecordData other, Transform transform);
-        protected abstract void GetRecordData(ref AbstractRecordData recordData, Transform transform);
-        protected abstract void SetRecordData(AbstractRecordData recordData, Transform transform);
+        protected abstract bool Comparer(AbstractRecordData origin, AbstractRecordData other);
+        protected abstract void GetRecordData(AbstractRecordData recordData, Transform transform);
+        protected abstract void SetRecordData(Transform transform,AbstractRecordData recordData);
+        protected abstract void AssignData(AbstractRecordData origin, AbstractRecordData other);
         /// <summary>
         /// 比较数据
         /// </summary>
         /// <param name="other"></param>
         /// <param name="transform"></param>
         /// <returns></returns>
-        public bool CompareTo(AbstractRecordData other, Transform transform)
+        public bool CompareTo(AbstractRecordData other)
         {
             if (this.ParentViewID == other.ParentViewID &&
             this.IsActive == other.IsActive &&
@@ -42,7 +45,7 @@ namespace Record
             this.Rotation == other.Rotation &&
             this.Scale == other.Scale && 
             this.InstantiatedID == other.InstantiatedID &&
-            Comparer(other, transform))
+            Comparer(this,other))
             {
                 return true;
             }
@@ -51,6 +54,7 @@ namespace Record
                 return false;
             }
         }
+
         /// <summary>
         /// 获取数据
         /// ParentViewID 为 -1 时，当前没有父物体
@@ -60,11 +64,11 @@ namespace Record
         /// <param name="recordData"></param>
         /// <param name="transform"></param>
         /// <param name="NowTime"></param>
-        public void GetCurrentRecordData(ref AbstractRecordData recordData, Transform transform, float NowTime)
+        public void GetCurrentRecordData(AbstractRecordData recordData, Transform transform, float NowTime)
         {
             if (transform.parent != null)
             {
-                if (transform.parent.GetComponent<RecordObjectView>() != null) 
+                if (transform.parent.GetComponent<RecordObjectView>() != null)
                 {
                     recordData.ParentViewID = transform.parent.GetComponent<RecordObjectView>().ViewID;
                     recordData.InstantiatedID = transform.parent.GetComponent<RecordObjectView>().InstantiatedID;
@@ -74,9 +78,26 @@ namespace Record
                 }
                 else
                 {
+                    #region Debug Part
+                    string debugPath = DebugLog + "/" + transform.name + ".rd";
+                    if (!File.Exists(debugPath))
+                    {
+                        using (FileStream fs = File.Create(debugPath))
+                        {
+                            fs.Flush();
+                            fs.Close();
+                        }
+                        using (FileStream fs = new FileStream(debugPath, FileMode.OpenOrCreate, FileAccess.Write))
+                        {
+                            fs.Write(Encoding.UTF8.GetBytes(transform.name + " ：它的父物体没有设置 RecordObjectView，它是不存在父物体变换的"));
+                            fs.Flush();
+                            fs.Close();
+                        }
+                    }
+                    #endregion
+
                     recordData.ParentViewID = -2;
                     recordData.InstantiatedID = 0;
-                    Debug.LogError("当前父物体没有加BaseView组件");
                 }
             }
             else
@@ -89,45 +110,58 @@ namespace Record
             recordData.Position = transform.localPosition;
             recordData.Rotation = transform.localEulerAngles;
             recordData.Scale = transform.localScale;
-            GetRecordData(ref recordData, transform);
+            GetRecordData(recordData, transform);
         }
         /// <summary>
         /// 应用数据
         /// </summary>
         /// <param name="recordData"></param>
-        /// <param name="masterTime"></param>
-        /// <param name="IsForward"></param>
         /// <param name="transform"></param>
-        /// <param name="WatchingModeDic"></param>
-        public void ApplyRecordData(AbstractRecordData recordData,double masterTime,bool IsForward,Transform transform,Dictionary<int,List<RecordObjectView>> WatchingModeDic)
+        /// <param name="mDataReader"></param>
+        public void ApplyRecordData(AbstractRecordData recordData,Transform transform,RecorderDataReader mDataReader)
         {
-            if (IsForward) 
-                if (recordData.TheDataBeAddedTime > masterTime) return;
-            else 
-                if (recordData.TheDataBeAddedTime < masterTime) return;
-            if (recordData.ParentViewID == -1) { 
+            if (recordData.ParentViewID == -1) {
                 transform.SetParent(null); 
             }
             else {
-                if (WatchingModeDic.ContainsKey(recordData.ParentViewID)) {
-                    WatchingModeDic[recordData.ParentViewID].ForEach((x) => {
-                        if (x.InstantiatedID == recordData.InstantiatedID) {
-                            transform.SetParent(x.transform);
-                            return;
+                foreach (SingleObjectInfo item in mDataReader.ViewID2SOI.Get(recordData.ParentViewID))
+                {
+                    if (item.InstantiatedID == recordData.InstantiatedID) {
+                        if (item.SingleView == null) {
+                            Debug.LogError("逻辑错误，不存在已经被销毁的物体去实例新的物体");
                         }
-                    });
-                }
-                else {
-                    Debug.Log(recordData.ParentViewID);
-                    Debug.LogError(transform.name+ " 的父物体没有被记录上");
+                        else
+                        {
+                            transform.SetParent(item.SingleView.transform);
+                        }
+                        break;
+                    }
                 }
             }
             transform.gameObject.SetActive(recordData.IsActive);
             transform.localPosition = recordData.Position;
             transform.localEulerAngles = recordData.Rotation;
             transform.localScale = recordData.Scale;
-            SetRecordData(recordData,transform);
+            SetRecordData(transform,recordData);
         }
+        /// <summary>
+        /// 值拷贝
+        /// </summary>
+        /// <param name="origin">本身</param>
+        /// <param name="other">新获得的</param>
+        public void AssignmentParams(AbstractRecordData origin, AbstractRecordData other)
+        {
+            origin.ParentViewID = other.ParentViewID;
+            origin.InstantiatedID = other.InstantiatedID;
+            origin.Position = other.Position;
+            origin.Rotation = other.Rotation;
+            origin.Scale = other.Scale;
+            origin.TheDataBeAddedTime = other.TheDataBeAddedTime;
+            origin.IsActive = other.IsActive;
+            AssignData(origin, other);
+        }
+
+        string DebugLog = Application.streamingAssetsPath + "/DegLog";
     }
     #endregion
 

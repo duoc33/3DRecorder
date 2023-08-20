@@ -49,7 +49,7 @@ namespace Record
                     RolpC.RecordObjects.Clear();
                 }
                 int index = 0;
-                View[] views = GameObject.FindObjectsOfType<View>(true);
+                RecordObjectView[] views = GameObject.FindObjectsOfType<RecordObjectView>(true);
                 if (views.Length > 0)
                 {
                     AddReocrdObjectsInfo(views, string.Empty, ref index);
@@ -65,7 +65,7 @@ namespace Record
             {
                 if (allResources[i] is GameObject)
                 {
-                    View[] views = (allResources[i] as GameObject).GetComponentsInChildren<View>(true);
+                    RecordObjectView[] views = (allResources[i] as GameObject).GetComponentsInChildren<RecordObjectView>(true);
                     if (views.Length > 0)
                     {
                         string loadPath = GetLoadPath(allResources[i]);
@@ -83,14 +83,14 @@ namespace Record
             temp = temp.Split('.')[0];
             return temp;
         }
-        private void AddReocrdObjectsInfo(View[] views, string loadPath, ref int index)
+        private void AddReocrdObjectsInfo(RecordObjectView[] views, string loadPath, ref int index)
         {
             RecordObjectInfo recordObjectInfo = new RecordObjectInfo();
             recordObjectInfo.LoadPath = loadPath;
-            foreach (View view in views)
+            foreach (RecordObjectView view in views)
             {
                 recordObjectInfo.ViewIDs.Add(index);
-                view.ID = index;
+                view.ViewID = index;
                 EditorUtility.SetDirty(view);
                 index++;
             }

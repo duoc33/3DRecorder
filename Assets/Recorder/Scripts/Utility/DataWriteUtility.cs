@@ -9,6 +9,26 @@ namespace Record
 {
     public class DataWriteUtility : IUtility
     {
+        public void InitFile(string path) 
+        {
+            if (File.Exists(path))
+            {
+                using (FileStream fs = new FileStream(path,FileMode.Truncate,FileAccess.Write))
+                {
+                    fs.SetLength(0);
+                    fs.Flush();
+                    fs.Close();
+                }
+            }
+            else
+            {
+                using (FileStream fs = File.Create(path))
+                {
+                    fs.Flush();
+                    fs.Close();
+                } 
+            }
+        }
         /// <summary>
         /// 用在写的时候
         /// </summary>
@@ -20,19 +40,15 @@ namespace Record
                 Directory.CreateDirectory(SavePath);
             }
             else {
-                Directory.Delete(SavePath,true);
+                string[] paths = Directory.GetFiles(SavePath);
+                foreach (var item in paths)
+                {
+                    File.Delete(item);
+                }
             }
         }
         public void WriteData(string path, AbstractRecordData recordData) 
         {
-            if (!File.Exists(path))
-            {
-                using (FileStream fs = File.Create(path))
-                {
-                    fs.Flush();
-                    fs.Close();
-                }
-            }
             if (recordData == null) return;
             byte[] tempData;
             using (FileStream fs = new FileStream(path,FileMode.Append,FileAccess.Write))

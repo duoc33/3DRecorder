@@ -13,12 +13,13 @@ namespace Record
         private Timer mTimer;
         protected override void OnExecute()
         {
+            mStateModel = this.GetModel<StateModel>();
             mPathModel = this.GetModel<PathModel>();
             mDataWriteUtility = this.GetUtility<DataWriteUtility>();
             mTimer = this.GetSystem<Timer>();
             mDataWriteUtility.InitDirectory(mPathModel.SavePath);
             mTimer.Reset();
-            mStateModel.State.Value = StateType.Recording;//正式开始记录
+            mStateModel.SetState(StateType.Recording);//正式开始记录
         }
     }
 }

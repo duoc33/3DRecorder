@@ -16,38 +16,38 @@ namespace Record
         {
             get {
                 if (mIsPause) {
-                    return CurrentTimeInWatching;
+                    return mCurrentTimeInWatching;
                 }
                 if (mIsForward)
                 {
-                    CurrentTimeInWatching += Time.deltaTime;
-                    return CurrentTimeInWatching;
+                    mCurrentTimeInWatching += Time.deltaTime;
+                    return mCurrentTimeInWatching;
                 }
                 else
                 {
-                    CurrentTimeInWatching -= Time.deltaTime;
-                    if (CurrentTimeInWatching < 0)
+                    mCurrentTimeInWatching -= Time.deltaTime;
+                    if (mCurrentTimeInWatching < 0)
                     {
-                        CurrentTimeInWatching = 0;
+                        mCurrentTimeInWatching = 0;
                         return 0;
                     }
                     else
                     {
-                        CurrentTimeInWatching -= Time.deltaTime;
-                        return CurrentTimeInWatching;
+                        mCurrentTimeInWatching -= Time.deltaTime;
+                        return mCurrentTimeInWatching;
                     }
                 }
             }
             set {
-                CurrentTimeInWatching = value;
+                mCurrentTimeInWatching = value;
             }
         }
-        public float GetCurrentTimeInWatching() => CurrentTimeInWatching;
+        public float CurrentTimeInWatching => mCurrentTimeInWatching;
         /// <summary>
         /// 记录模式下获取当前时间
         /// </summary>
         public float CurrentTime => Time.time - StartTime;
-        private float CurrentTimeInWatching;
+        private float mCurrentTimeInWatching;
         private float StartTime;
         private bool mIsPause;
         private bool mIsForward;
@@ -57,16 +57,18 @@ namespace Record
             mIsPause = false; 
             mIsForward = true;
             MasterTime = 0;
-            CurrentTimeInWatching = 0;
+            mCurrentTimeInWatching = 0;
             Reset();
         }
         public void Reset()
         {
             StartTime = Time.time;
-            CurrentTimeInWatching = 0;
+            mCurrentTimeInWatching = 0;
         }
         public void SetPause(bool isPause) =>mIsPause = isPause;
         public void SetForward(bool isForward)=> mIsForward = isForward;
+        public bool IsForward => mIsForward;
+        public bool IsPaused => mIsPause;
     }
 }
 

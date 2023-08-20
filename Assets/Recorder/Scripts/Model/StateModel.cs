@@ -6,7 +6,8 @@ namespace Record
 {
     public class StateModel : AbstractModel
     {
-        public BindableProperty<StateType> State { get; set; } = new BindableProperty<StateType>();
+        public BindableProperty<StateType> State { get; } = new BindableProperty<StateType>();
+        public void SetState(StateType state) => State.Value = state;
         protected override void OnInit()
         {
             State.Value = StateType.None;

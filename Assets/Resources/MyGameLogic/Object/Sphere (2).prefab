@@ -110,7 +110,7 @@ GameObject:
   - component: {fileID: 3967129718344208989}
   - component: {fileID: 3967129718344208990}
   - component: {fileID: 3967129718344208991}
-  - component: {fileID: 4577682616679304556}
+  - component: {fileID: 6060708013616808646}
   m_Layer: 0
   m_Name: Sphere (2)
   m_TagString: Untagged
@@ -198,7 +198,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4577682616679304556
+--- !u!114 &6060708013616808646
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -207,10 +207,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 3967129718344208984}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5bf6ffa5bb04cc4a86296b574433363, type: 3}
+  m_Script: {fileID: 11500000, guid: 585e13ec411f31546ae0a4fe5b8e3d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ID: 2
+  ViewID: 4
+  InstantiatedID: 0
 --- !u!1 &4372625718292410876
 GameObject:
   m_ObjectHideFlags: 0
@@ -223,7 +224,7 @@ GameObject:
   - component: {fileID: 8319980832621468799}
   - component: {fileID: 3309308550615248547}
   - component: {fileID: 2609754413612450002}
-  - component: {fileID: 8483578185621378361}
+  - component: {fileID: 6149841783864092199}
   m_Layer: 0
   m_Name: Capsule (1)
   m_TagString: Untagged
@@ -310,7 +311,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &8483578185621378361
+--- !u!114 &6149841783864092199
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -319,10 +320,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 4372625718292410876}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f5bf6ffa5bb04cc4a86296b574433363, type: 3}
+  m_Script: {fileID: 11500000, guid: 585e13ec411f31546ae0a4fe5b8e3d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ID: 3
+  ViewID: 5
+  InstantiatedID: 0
 --- !u!1 &5839174595507851230
 GameObject:
   m_ObjectHideFlags: 0

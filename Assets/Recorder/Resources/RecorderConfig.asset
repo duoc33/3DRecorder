@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RecordObjects:
   - LoadPath: 
-    ViewIDs: 0000000001000000
+    ViewIDs: 00000000010000000200000003000000
   - LoadPath: MyGameLogic/Object/Sphere (2)
-    ViewIDs: 0200000003000000
+    ViewIDs: 0400000005000000
   - LoadPath: MyGameLogic/UI/Button/Cube (1)
-    ViewIDs: 04000000
+    ViewIDs: 06000000
