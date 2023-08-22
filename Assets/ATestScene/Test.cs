@@ -1,71 +1,55 @@
 using Record;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Xml.Linq;
 using UnityEngine;
-[DisallowMultipleComponent]
+using static UnityEngine.GraphicsBuffer;
+
 public class Test : MonoBehaviour
 {
-    public GameObject[] gameObjects;
+    public GameObject target1;
+    public GameObject target2;
+    public LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
     void Start()
     {
-        Recorder.Instance.SetSaveOrReadPath(Application.streamingAssetsPath, "Record");
-        Recorder.Instance.SetMode(StateType.Recording);
+        Recorder.Instance.SetMode(StateType.Watching);
     }
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            gameObjects[2].transform.SetParent(gameObjects[0].transform);
+        if (Recorder.Instance.IsEnterWatching) return;
+        if (Input.GetKeyDown(KeyCode.P)) 
+        {
+            InitGameObject();
+        }
+        if (Input.GetKeyDown(KeyCode.D))
+        {
+            Destroy(gameObjects.First.Value);
+            gameObjects.RemoveFirst();
+
         }
         if (Input.GetKey(KeyCode.RightArrow)) 
         {
-            gameObjects[0].transform.Translate(Vector3.right*Time.deltaTime*3);
-           
+            if(target1!=null)
+                target1.transform.Translate(Vector3.right*Time.deltaTime*3);
+            if (target2 != null)
+                target2.transform.Translate(Vector3.right * Time.deltaTime * 3);
         }
         if (Input.GetKey(KeyCode.LeftArrow))
         {
-            gameObjects[0].transform.Translate(Vector3.left * Time.deltaTime * 3);
-            
-        }
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-
-        }
-        if (Input.GetKey(KeyCode.DownArrow))
-        {
-
-        }
-        if (Input.GetKey(KeyCode.D)) {
-            gameObjects[1].transform.Translate(Vector3.right * Time.deltaTime * 3);
-        }
-        if (Input.GetKey(KeyCode.A))
-        {
-            gameObjects[1].transform.Translate(Vector3.left * Time.deltaTime * 3);
-        }
-        if (Input.GetKey(KeyCode.W))
-        {
-            
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            
+            if (target1 != null)
+                target1.transform.Translate(Vector3.left * Time.deltaTime * 3);
+            if (target2 != null)
+                target2.transform.Translate(Vector3.left * Time.deltaTime * 3);
         }
 
     }
-    private void RemoveComponent(GameObject go, Type definedType)
+    private void InitGameObject() 
     {
-        foreach (var component in go.GetComponents<Component>())
-        {
-            if (component.GetType() == definedType)
-            {
-                Destroy(component);
-            }
-        }
+        GameObject target =Instantiate(Resources.Load<GameObject>("MyGameLogic/Object/Sphere (2)"));
+        RecordObjectView[] recordObjectViews = target.GetComponentsInChildren<RecordObjectView>(true);
+        target1 = recordObjectViews[0].gameObject;
+        target2 = recordObjectViews[1].gameObject;
+        gameObjects.AddLast(target1);
+        gameObjects.AddLast(target2);
     }
 }
-
-
-
