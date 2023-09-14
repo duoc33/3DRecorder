@@ -12,17 +12,35 @@ using static UnityEditor.Progress;
 namespace Record
 {
     #region BaseData
-    public interface IData
+    /// <summary>
+    /// 回放数据类型 拥有的基本接口功能: 
+    /// 1.比较方式
+    /// 2.防止引用拷贝用，数据需要值赋值
+    /// 3.获取数据的方法。
+    /// 4.应用数据的方法。
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface IData<T>
     {
-        bool CompareTo(AbstractRecordData other);
-        void GetCurrentRecordData(AbstractRecordData recordData, Transform transform, float NowTime);
-        void ApplyRecordData(AbstractRecordData recordData, Transform transform, RecorderDataReader mDataReader);
+        bool CompareTo(T other);
+        void AssignmentParams(T origin, T other);
+        void GetCurrentRecordData(T recordData, Transform transform, float NowTime);
+        void ApplyRecordData(T recordData, Transform transform, RecorderDataReader mDataReader);
     }
     [Serializable]
-    public abstract class AbstractRecordData : IData
+    public abstract class AbstractRecordData : IData<AbstractRecordData>
     {
+        /// <summary>
+        /// 父物体唯一ID
+        /// </summary>
         public int ParentViewID;
+        /// <summary>
+        /// 父物体实例ID
+        /// </summary>
         public int InstantiatedID;
+        /// <summary>
+        /// 当前数据被添加时间
+        /// </summary>
         public float TheDataBeAddedTime;
         public bool IsActive;
         public Vector3 Position;

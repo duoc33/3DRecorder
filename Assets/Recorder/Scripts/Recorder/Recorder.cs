@@ -12,9 +12,7 @@ namespace Record
 {
     /// <summary>
     /// 回放器说明
-    /// 1.要求回放的观看的物体一般为static物体(不强制要求)，需要回放的物体一定是会动的或者是拥有逻辑表现的不同并且又RecordObjectView组件。
-    /// 2.要求回放的物体有又预制件加载而来，并且其名称加载到场景中与预制件名称一致(去掉(Clone))。
-    /// 3.要求回放观看的物体的名称一定是为一的，也就是预制件名称不能又重叠。包括其预制件下的子物体。
+    /// 1.需要回放的物体一定是会动的或者是拥有逻辑表现的不同。并加上RecordObjectView组件。
     /// </summary>
     [DisallowMultipleComponent]
     public class Recorder :BaseView
@@ -40,6 +38,7 @@ namespace Record
         private float mMasterTime;
         private float mEndTime;
 
+        [HideInInspector]
         public bool IsEnterWatching;
 
         #region Mono 生命周期
@@ -86,7 +85,6 @@ namespace Record
                 if (singleObjectInfo == null) return;
                 singleObjectInfo.ReadCoroutine = StartCoroutine(StartWatching(singleObjectInfo));
             }).UnRegisterWhenGameObjectDestroyed(this.gameObject);
-
             #endregion
         }
 

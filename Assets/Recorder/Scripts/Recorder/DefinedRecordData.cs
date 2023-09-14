@@ -12,36 +12,26 @@ namespace Record
     [Serializable]
     public class DefinedRecordData : AbstractRecordData
     {
-        public string MyTest = "CC_Test";
-
         /// <summary>
         /// 赋值方式
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="other"></param>
         /// <exception cref="NotImplementedException"></exception>
-        protected override void AssignData(AbstractRecordData origin, AbstractRecordData other)
-        {
-            (origin as DefinedRecordData).MyTest = (other as DefinedRecordData).MyTest;
-        }
+        protected override void AssignData(AbstractRecordData origin, AbstractRecordData other) { }
         /// <summary>
         /// 增加数据比较方式
         /// </summary>
         /// <param name="other">另一个数据</param>
         /// <param name="transform">当前回放对象Trans组件</param>
         /// <returns></returns>
-        protected override bool Comparer(AbstractRecordData origin, AbstractRecordData other) {
-            return (other as DefinedRecordData).MyTest== (origin as DefinedRecordData).MyTest;
-        }
+        protected override bool Comparer(AbstractRecordData origin, AbstractRecordData other)=>true;
         /// <summary>
         /// 给新增加的数据定义recordData的赋值方式
         /// </summary>
         /// <param name="recordData"></param>
         /// <param name="transform"></param>
-        protected override void GetRecordData(AbstractRecordData recordData, Transform transform) 
-        {
-            (recordData as DefinedRecordData).MyTest = this.MyTest;
-        }
+        protected override void GetRecordData(AbstractRecordData recordData, Transform transform) { }
         /// <summary>
         /// 给新增加的数据定义Transform的赋值方式
         /// </summary>

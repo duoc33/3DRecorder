@@ -10,13 +10,10 @@ namespace Record
     /// </summary>
     public class PrefabModifyWindow : EditorWindow
     {
-        //private static Font toFont;
-        //private static TMP_FontAsset tmFont;
         private static string PrefabLoadPath;
         private static int defaultSplitLength;
         private static RecordObjectLoadPathConfig RolpC;
         private static string CurrentSceneName;
-        //private static Object UnityMonoComponent;
 
         [MenuItem("PrefabTool/ModifyPrefab")]
         public static void ShowWin()

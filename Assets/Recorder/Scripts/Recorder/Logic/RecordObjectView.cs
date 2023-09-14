@@ -10,7 +10,7 @@ using UnityEngine.SceneManagement;
 
 namespace Record
 {
-    public abstract class RecordObjectView : BaseView 
+    public abstract class RecordObjectView : BaseView
     { 
         #region 基础属性和字段
         /// <summary>
@@ -50,11 +50,13 @@ namespace Record
         public AbstractRecordData mRecordData;
         public AbstractRecordData GetDataType() => DefineDataType();
         public AbstractRecordData GetDeserializeType(string Json) => DeserializeType(Json);
+        //public T GetDeserializeType(string Json) => JsonUtility.FromJson<T>(Json);
         #endregion
 
         #region MonoBehaviour相关的初始化
         protected virtual void Start()
         {
+            //mRecordData = mRecordData.GetDataIns() as AbstractRecordData;
             mRecordData = DefineDataType();
             if (mRecordData == null) return;
             mStateModel = this.GetModel<StateModel>();

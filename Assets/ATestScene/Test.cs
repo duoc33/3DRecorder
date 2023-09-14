@@ -12,11 +12,9 @@ public class Test : MonoBehaviour
     public LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
     void Start()
     {
-        Recorder.Instance.SetMode(StateType.Watching);
     }
     private void Update()
     {
-        if (Recorder.Instance.IsEnterWatching) return;
         if (Input.GetKeyDown(KeyCode.P)) 
         {
             InitGameObject();
