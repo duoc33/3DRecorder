@@ -10,6 +10,9 @@ using UnityEngine.SceneManagement;
 
 namespace Record
 {
+    /// <summary>
+    /// 回放对象基类，包含必须拥有的字段、属性和方法
+    /// </summary>
     public abstract class RecordObjectView : BaseView
     { 
         #region 基础属性和字段
@@ -31,7 +34,7 @@ namespace Record
         /// </summary>
         public string ObjectSavePath { get; set; }
         /// <summary>
-        /// 检测间隔的设置
+        /// 检测间隔的设置,间隔越长，性能消耗降低
         /// </summary>
         [HideInInspector]
         public float DetectInterval = 0;
@@ -82,15 +85,17 @@ namespace Record
                 case StateType.Watching:
                     RecordObjectEnterWatching();
                     break;
-                case StateType.None:
                 case StateType.Resume:
                 case StateType.Pause:
+                case StateType.None:
                     break;
             }
         }
-      
-        #region 私有方法
         
+        #region 私有方法
+        /// <summary>
+        /// 进入录制模式初始化
+        /// </summary>
         private void RecordObjectEnterRecording()
         {
             EnterRecording();

@@ -8,18 +8,28 @@ using static UnityEditor.Progress;
 namespace Record
 {
     /// <summary>
-    /// 回放对象合集及它们实例次数相关数据的记录、并进行文件创建等
+    /// 回放对象合集及它们实例次数相关数据的记录中心、并进行文件创建等
     /// </summary>
     public class RecorderDataCenter : AbstractModel
     {
+        /// <summary>
+        /// 读取数据的方法类
+        /// </summary>
         private DataReadUtility mDataReadUtility;
+        /// <summary>
+        /// 写入数据的方法，定义了数据存储格式
+        /// </summary>
         private DataWriteUtility mDataWriteUtility;
+        /// <summary>
+        /// 配置表
+        /// </summary>
         private RecordObjectLoadPathConfig pathConfig;
         protected override void OnInit()
         {
             mDataReadUtility = this.GetUtility<DataReadUtility>();
             mDataWriteUtility = this.GetUtility<DataWriteUtility>();
         }
+
         #region RecordingMode
         /// <summary>
         /// 当前场景所有记录对象，内部有可能已经被销毁了
@@ -30,12 +40,14 @@ namespace Record
         /// 记录模式下记录当前物体的个数
         /// </summary>
         private Dictionary<int, List<ViewInfoInRecording> > RecordingModeDic = new Dictionary<int, List<ViewInfoInRecording>>();
+        
         /// <summary>
         /// 记录当前场景中的回放对象，获得他们的实例化次数，初始化它们的数据文件
         /// </summary>
         /// <param name="baseView">回放对象特性</param>
         public ViewInfoInRecording AddBaseViewOnRecording(RecordObjectView baseView)
         {
+            //记录那个对象实例出来的
             int temBeInstantiatedID = baseView.InstantiatedID;
             if (RecordingModeDic.ContainsKey(baseView.ViewID))
             {
@@ -64,6 +76,9 @@ namespace Record
         #endregion
 
         #region WatchingMode
+        /// <summary>
+        /// 观看模式下，供外部使用的获取/查找回放数据的中心(联合查询器)
+        /// </summary>
         public RecorderDataReader RecorderReader => mDataReader;
         /// <summary>
         /// 联合查询器
@@ -134,13 +149,23 @@ namespace Record
 
         #endregion
     }
+
     /// <summary>
     /// 录制模式中的结构
     /// </summary>
     public class ViewInfoInRecording
     {
+        /// <summary>
+        /// 回放组件View
+        /// </summary>
         public RecordObjectView View;
+        /// <summary>
+        /// 实例ID，ViewID对象clone实例化出来的ID，如果场景中它是第一个该ID默认为0
+        /// </summary>
         public int InstantiatedID;
+        /// <summary>
+        /// 写入该对象数据的协程,方便统一销魂
+        /// </summary>
         public Coroutine WriteCoroutine;
     }
 }

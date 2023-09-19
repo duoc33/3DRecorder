@@ -46,9 +46,12 @@ namespace Record
                 mCurrentTimeInWatching = value;
             }
         }
+        /// <summary>
+        /// 当前时间 观看模式下
+        /// </summary>
         public float CurrentTimeInWatching => mCurrentTimeInWatching;
         /// <summary>
-        /// 记录模式下获取当前时间
+        /// 记录模式下 获取当前时间
         /// </summary>
         public float CurrentTime => Time.time - StartTime;
         /// <summary>
@@ -69,14 +72,31 @@ namespace Record
             mEndTime = 0;
             Reset();
         }
+        /// <summary>
+        /// 重置时间
+        /// </summary>
         public void Reset()
         {
             StartTime = Time.time;
             mCurrentTimeInWatching = 0;
         }
+        /// <summary>
+        /// 暂停时间，观看模式，同时会连带的暂停数据读取
+        /// </summary>
+        /// <param name="isPause"></param>
         public void SetPause(bool isPause) =>mIsPause = isPause;
+        /// <summary>
+        /// 观看模式下，设置向前回放还是向后回放
+        /// </summary>
+        /// <param name="isForward"></param>
         public void SetForward(bool isForward)=> mIsForward = isForward;
+        /// <summary>
+        /// 外部属性，当前是向前看还是向后看
+        /// </summary>
         public bool IsForward => mIsForward;
+        /// <summary>
+        /// 外部属性，当前是否暂停
+        /// </summary>
         public bool IsPaused => mIsPause;
     }
 }

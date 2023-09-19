@@ -12,6 +12,8 @@ public class Test : MonoBehaviour
     public LinkedList<GameObject> gameObjects = new LinkedList<GameObject>();
     void Start()
     {
+        Recorder.Instance.SetSaveOrReadPath(Application.streamingAssetsPath,"Record");
+        Recorder.Instance.SetMode(StateType.Watching);
     }
     private void Update()
     {

@@ -9,13 +9,10 @@ namespace Record
 {
     #region 联合查询
     /// <summary>
-    /// 数据读取器，联合查询器
+    /// 数据读取器，联合查询器,只用于观看模式下
     /// </summary>
-    public class RecorderDataReader : Table<SingleObjectInfo>,IModel
+    public class RecorderDataReader : Table<SingleObjectInfo>
     {
-        #region 属性
-
-        #endregion
 
         #region DataStruct
         /// <summary>
@@ -70,7 +67,7 @@ namespace Record
         #endregion
 
         /// <summary>
-        /// 逻辑过于复杂
+        /// 根据当前Timer的时间和向前观看或向后观看得到当前需要实例的物体
         /// </summary>
         /// <param name="CurrentTime"></param>
         public void InstantiatedByTime(int CurrentTime,bool IsForward) 
@@ -88,6 +85,11 @@ namespace Record
                 InsBackWard(CurrentTime);
             }
         }
+        /// <summary>
+        /// 根据ViewID和InstantiatedID 能够找到唯一的场景中的对象
+        /// </summary>
+        /// <param name="view"></param>
+        /// <returns></returns>
         public SingleObjectInfo FindSoleSingleObjectInfoByView(RecordObjectView view)
         {
             foreach (var item in ViewID2SOI.Get(view.ViewID).Where(x => x.InstantiatedID == view.InstantiatedID))
@@ -191,6 +193,10 @@ namespace Record
                 SameTimeDesItem.CurrentIndexInStream = SameTimeDesItem.StreamLength - 4;
             }
         }
+        /// <summary>
+        /// 到放模式销魂的方法
+        /// </summary>
+        /// <param name="CurrentTime"></param>
         private void DesBackward(int CurrentTime) 
         {
             if (DestoryedTime2SOI.Get(CurrentTime).Count() <= 0) return;
@@ -240,6 +246,10 @@ namespace Record
                 }
             }
         }
+        /// <summary>
+        /// 到放模式实例的方法
+        /// </summary>
+        /// <param name="CurrentTime"></param>
         private void InsBackWard(int CurrentTime) 
         {
             if (InstantiatedTime2SOI.Get(CurrentTime).Count() <= 0) return;
@@ -278,20 +288,6 @@ namespace Record
             singleObjectInfo.SingleView.FileLength = singleObjectInfo.StreamLength;
         }
 
-        public void SetArchitecture(IArchitecture architecture)
-        {
-            mArchitecture = architecture;
-        }
-        private IArchitecture mArchitecture;
-        public IArchitecture GetArchitecture()
-        {
-            return mArchitecture;
-        }
-
-        public void Init()
-        {
-            Debug.Log("初始化了");
-        }
     }
     /// <summary>
     /// 读取时所需的单个对象信息
@@ -299,6 +295,7 @@ namespace Record
     public class SingleObjectInfo
     {
         #region 根据磁盘文件直接可得
+        
         /// <summary>
         /// ViewID 记录标识
         /// </summary>
@@ -347,7 +344,6 @@ namespace Record
         /// </summary>
         public Coroutine ReadCoroutine { get; set; }
         #endregion
-
     }
     #endregion
 }
