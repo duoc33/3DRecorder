@@ -21,7 +21,7 @@ namespace Record
             defaultSplitLength = 17;
             RolpC = Resources.Load<RecordObjectLoadPathConfig>("RecorderConfig");
             PrefabLoadPath = "MyGameLogic";
-            CurrentSceneName = "Test";
+            CurrentSceneName = "DemoRecordingScene";
             EditorWindow.CreateInstance<PrefabModifyWindow>().Show();
         }
         private void OnGUI()

@@ -210,10 +210,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 585e13ec411f31546ae0a4fe5b8e3d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ViewID: 0
+  ViewID: 5
   InstantiatedID: 0
   DetectInterval: 0
   EndTime: 0
+  mDetectInterval: 0
 --- !u!1 &4372625718292410876
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,10 +326,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 585e13ec411f31546ae0a4fe5b8e3d49, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ViewID: 1
+  ViewID: 6
   InstantiatedID: 0
   DetectInterval: 0
   EndTime: 0
+  mDetectInterval: 0
 --- !u!1 &5839174595507851230
 GameObject:
   m_ObjectHideFlags: 0

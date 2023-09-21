@@ -158,7 +158,7 @@ namespace Record
                 fs.Read(len);
                 int length = BitConverter.ToInt32(len);
                 data = new byte[length];
-                fs.Seek(-8 - length, SeekOrigin.End);
+                fs.Seek(-4 - length, SeekOrigin.Current);
                 fs.Read(data);
                 mCurrentIndexInStream = fs.Position + 4;
                 fs.Flush();
@@ -207,7 +207,7 @@ namespace Record
                 bytes = new byte[4];
                 fs.Read(bytes);
                 fs.Flush();
-                fs.Close(); 
+                fs.Close();
             }
             return BitConverter.ToInt32(bytes);
         }

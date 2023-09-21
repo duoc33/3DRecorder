@@ -62,7 +62,7 @@ namespace Record
 
         public override IEnumerator<SingleObjectInfo> GetEnumerator()
         {
-            return ViewID2SOI.Dictionary.Values.SelectMany(s => s).GetEnumerator();
+            return ViewID2SOI.Dictionary.Values.SelectMany(s =>s).GetEnumerator();
         }
         #endregion
 
@@ -72,8 +72,6 @@ namespace Record
         /// <param name="CurrentTime"></param>
         public void InstantiatedByTime(int CurrentTime,bool IsForward) 
         {
-            //InsForward(CurrentTime);
-            //DesForward(CurrentTime);
             if (IsForward)
             {
                 InsForward(CurrentTime);

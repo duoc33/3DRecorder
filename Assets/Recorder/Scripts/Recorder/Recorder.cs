@@ -2,6 +2,7 @@ using QFramework;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -23,7 +24,6 @@ namespace Record
     public class Recorder :BaseView
     {
         #region API_ALL
-        
 
         /// <summary>
         /// 设置文件写入的路径和文件名，或者是其读取的路径和文件名称
@@ -60,6 +60,10 @@ namespace Record
                     IsEnterWatching = false;
                     mStateModel.SetState(StateType.Pause);
                     break;
+                case StateType.PauseInRecording:
+                    IsEnterWatching = false;
+                    mStateModel.SetState(StateType.PauseInRecording);
+                    break;
                 default:
                     IsEnterWatching = false;
                     mStateModel.SetState(StateType.None);
@@ -72,6 +76,7 @@ namespace Record
         /// </summary>
         public void StepForwardByFrame()
         {
+            IsPause = false;
             if (!IsEnterWatching) return;
             if (!mTimer.IsForward)
             {
@@ -84,6 +89,7 @@ namespace Record
         /// </summary>
         public void StepBackwardByFrame()
         {
+            IsPause = false;
             if (!IsEnterWatching) return;
             if (mTimer.IsForward)
             {
@@ -91,18 +97,13 @@ namespace Record
             }
             mMasterTime = mTimer.MasterTime;
         }
-
+        public int MasterTime =>Mathf.FloorToInt(mTimer.CurrentTimeInWatching);
 
         /// <summary>
-        /// 设置暂停，仅回放模式使用
+        /// 结束所有,谨慎使用
         /// </summary>
-        /// <param name="isPause"></param>
-        public void SetPause(bool isPause) => mTimer.SetPause(isPause);
-        /// <summary>
-        /// 向前观看或者向后观看
-        /// </summary>
-        /// <param name="isForward"></param>
-        public void SetForward(bool isForward) => mTimer.SetForward(isForward);
+        public void DestoryInstance()=> Destroy(gameObject);
+
         #endregion
 
         private static Recorder instance;
@@ -132,6 +133,7 @@ namespace Record
         /// </summary>
         [HideInInspector]
         public bool IsEnterWatching;
+        private bool IsPause = false;
         #endregion
 
         #region Mono 生命周期
@@ -139,6 +141,7 @@ namespace Record
         {
             if (instance != null) return;
             instance = this;
+            IsPause = false;
             mMasterTime = 0;
             IsEnterWatching = false;
             mRecorderCenter = this.GetModel<RecorderDataCenter>();
@@ -152,9 +155,26 @@ namespace Record
 
         private void OnDestroy()
         {
+            if (mStateModel.State.Value == StateType.Watching) {
+                IsPause = true;
+                foreach (var item in mRecorderCenter.RecorderReader)
+                {
+                    if (item.ReadCoroutine != null) { 
+                        StopCoroutine(item.ReadCoroutine);
+                    }
+                    if (item.LoadPath.Equals(string.Empty)) {
+                        continue;
+                    }
+                    if (item.SingleView != null) { 
+                        DestroyImmediate(item.SingleView.gameObject);
+                    }
+                }
+            }
             if (mStateModel.State.Value == StateType.Recording) {
+                EndAll();
                 WriteRecordInfo();
             }
+            mTimer.Reset();
         }
         /// <summary>
         /// 事件注册
@@ -180,35 +200,25 @@ namespace Record
             }).UnRegisterWhenGameObjectDestroyed(this.gameObject);
             #endregion
         }
-
-        private void Update()
-        {
-            if (Input.GetKey(KeyCode.RightArrow))
-            {
-                StepForwardByFrame();
-            }
-            if (Input.GetKey(KeyCode.LeftArrow))
-            {
-                StepBackwardByFrame();
-            }
-        }
         
+
         #endregion
 
         #region 结束录制
-        public void RemoveAll()
+        /// <summary>
+        /// 结束所有录制
+        /// </summary>
+        private void EndAll()
         {
             foreach (var item in mRecorderCenter.RecordModeDic.Values)
             {
                 foreach (var viewInfoInRecording in item)
                 {
-                    if (viewInfoInRecording.View != null)
-                    {
-                        Object.Destroy(viewInfoInRecording.View);
+                    if (viewInfoInRecording.View != null) {
+                        StopCoroutine(viewInfoInRecording.WriteCoroutine);
                     }
                 }
             }
-            WriteRecordInfo();
         }
         private void WriteRecordInfo()
         {
@@ -226,8 +236,7 @@ namespace Record
         {
             if(View == null) yield break;
             AbstractRecordData temp = View.GetDataType();
-            AbstractRecordData mRecordData = View.GetDataType();
-            
+            AbstractRecordData mRecordData = View.GetDataType(); 
             mDataWriteUtility.WriteHead(View.ObjectSavePath, Mathf.FloorToInt(mTimer.CurrentTime));
             while (mStateModel.State.Value == StateType.Recording)
             {
@@ -251,6 +260,7 @@ namespace Record
                     yield return new WaitForEndOfFrame();
                 }
             }
+            Debug.Log("暂停录制了");
         }
         /// <summary>
         /// 录制结束
@@ -268,6 +278,11 @@ namespace Record
         #endregion
 
         #region Read
+        /// <summary>
+        /// 开始观看
+        /// </summary>
+        /// <param name="View"></param>
+        /// <returns></returns>
         private IEnumerator StartWatching(SingleObjectInfo View) 
         {
             if (View.CurrentIndexInStream == 4) {
@@ -282,7 +297,11 @@ namespace Record
             }
             while (mStateModel.State.Value == StateType.Watching) {
                 if (View.SingleView == null) yield break;
-                if (mTimer.IsForward) 
+                if (IsPause) {
+                    yield return null;
+                    continue;
+                }
+                if (mTimer.IsForward)
                 {
                     ReadForward(View);
                     yield return new WaitForEndOfFrame();
@@ -300,18 +319,18 @@ namespace Record
         /// <param name="singleObjectInfo"></param>
         private void ReadForward(SingleObjectInfo singleObjectInfo)
         {
-            if (singleObjectInfo.SingleView.mRecordData.TheDataBeAddedTime >= mTimer.CurrentTimeInWatching) return;
+            if (singleObjectInfo.SingleView.mRecordData.TheDataBeAddedTime > mTimer.CurrentTimeInWatching) return;
             string data = mDataReadUtility.ReadNextData(singleObjectInfo.SingleView.ObjectSavePath, ref singleObjectInfo.CurrentIndexInStream);
             if (data == null) return;
             singleObjectInfo.SingleView.mRecordData = singleObjectInfo.SingleView.GetDeserializeType(data);
-            singleObjectInfo.SingleView.mRecordData.ApplyRecordData(singleObjectInfo.SingleView.mRecordData, singleObjectInfo.SingleView.transform, mRecorderCenter.RecorderReader);
+            singleObjectInfo.SingleView.mRecordData.ApplyRecordData(singleObjectInfo.SingleView.mRecordData,singleObjectInfo.SingleView.transform, mRecorderCenter.RecorderReader);
         }
         /// <summary>
         /// 向后读
         /// </summary>
         private void ReadBackward(SingleObjectInfo View)
         {
-            if (View.SingleView.mRecordData.TheDataBeAddedTime <= mTimer.CurrentTimeInWatching) return;
+            if (View.SingleView.mRecordData.TheDataBeAddedTime < mTimer.CurrentTimeInWatching) return;
             string data = mDataReadUtility.ReadPreData(View.SingleView.ObjectSavePath,ref View.CurrentIndexInStream);
             if (data == null) return;
             View.SingleView.mRecordData = View.SingleView.GetDeserializeType(data);

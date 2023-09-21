@@ -12,7 +12,7 @@ namespace Record
         public List<RecordObjectInfo> RecordObjects = new List<RecordObjectInfo>();
     }
     [Serializable]
-    public class RecordObjectInfo 
+    public class RecordObjectInfo
     {
         public string LoadPath;
         public List<int> ViewIDs = new List<int>();

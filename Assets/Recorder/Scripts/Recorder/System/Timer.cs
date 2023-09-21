@@ -47,6 +47,20 @@ namespace Record
             }
         }
         /// <summary>
+        /// 时间变回第一帧的时间
+        /// </summary>
+        public void ChangeToLastTime() 
+        {
+            mCurrentTimeInWatching = mEndTime;
+        }
+        /// <summary>
+        /// 时间变回结束的时间
+        /// </summary>
+        public void ChangeToFirstTime()
+        {
+            mCurrentTimeInWatching = 0;
+        }
+        /// <summary>
         /// 当前时间 观看模式下
         /// </summary>
         public float CurrentTimeInWatching => mCurrentTimeInWatching;

@@ -74,19 +74,29 @@ namespace Record
             }
         }
         #endregion
-
+        
+        private bool IsResume = false;
         private void UpdateState(StateType state)
         {
             switch (state)
             {
                 case StateType.Recording:
+                    if (IsResume) return;
                     RecordObjectEnterRecording();
+                    IsResume = false;
                     break;
                 case StateType.Watching:
+                    if (IsResume) return;
                     RecordObjectEnterWatching();
+                    IsResume = false;
                     break;
                 case StateType.Resume:
+                    IsResume = true;
+                    break;
                 case StateType.Pause:
+                    break;
+                case StateType.PauseInRecording:
+                    break;
                 case StateType.None:
                     break;
             }
@@ -108,6 +118,10 @@ namespace Record
         {
             EnterWatching();
             this.SendCommand<ObjectLoadedInWatchingCommand>(new ObjectLoadedInWatchingCommand(this));
+        }
+        private void RecordObjectPauseInRecording() 
+        {
+            
         }
         #endregion
 

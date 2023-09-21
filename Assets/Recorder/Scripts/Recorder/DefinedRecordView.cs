@@ -22,7 +22,10 @@ namespace Record
         /// <summary>
         /// 开始观看
         /// </summary>
-        protected override void EnterWatching() { }
+        protected override void EnterWatching() 
+        {
+            RemoveComponent(this.gameObject, typeof(Animator));
+;        }
         /// <summary>
         /// 退出记录
         /// </summary>

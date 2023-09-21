@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace Record
 {
+    /// <summary>
+    /// 开始录制的指令
+    /// </summary>
     public class InitInRecordingCommand :AbstractCommand
     {
         private StateModel mStateModel;

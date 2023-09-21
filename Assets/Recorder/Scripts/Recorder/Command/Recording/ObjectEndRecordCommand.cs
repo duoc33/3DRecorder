@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Record
 {
+    /// <summary>
+    /// 单个View对象结束时发出的指令
+    /// </summary>
     public class ObjectEndRecordCommand : AbstractCommand
     {
         RecordObjectView mView;

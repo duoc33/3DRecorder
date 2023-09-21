@@ -40,10 +40,17 @@ namespace Record
             mTimer.Reset();
             while (mStateModel.State.Value == StateType.Watching) {
                 int CurrentTime =Mathf.FloorToInt(mTimer.CurrentTimeInWatching);
+                if (tempTime == CurrentTime) {
+                    //优化，防止过多的检测
+                    yield return new WaitForEndOfFrame();
+                    continue;
+                }
+                tempTime = CurrentTime;
                 mDataCenter.RecorderReader.InstantiatedByTime(CurrentTime,mTimer.IsForward);
                 yield return new WaitForEndOfFrame();
             }
         }
+        private int tempTime = 0;
     }
 }
 

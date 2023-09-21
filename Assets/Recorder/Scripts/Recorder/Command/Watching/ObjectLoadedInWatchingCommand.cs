@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 namespace Record
 {
+    /// <summary>
+    /// 物体加载进场景初始指令
+    /// </summary>
     public class ObjectLoadedInWatchingCommand : AbstractCommand
     {
         RecordObjectView mView;

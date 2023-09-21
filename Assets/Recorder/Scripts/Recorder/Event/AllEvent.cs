@@ -10,10 +10,16 @@ namespace Record
     {
         public RecordObjectView View;
     }
+    /// <summary>
+    /// 结束录制发生的事件
+    /// </summary>
     public struct ObjectEndRecordingEvent 
     {
         public RecordObjectView View;
     }
+    /// <summary>
+    /// 
+    /// </summary>
     public struct ObjectLoadedInWatchingEvent 
     {  
         public RecordObjectView View; 
