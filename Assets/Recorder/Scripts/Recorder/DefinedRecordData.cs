@@ -11,7 +11,7 @@ namespace Record
     public class DefinedRecordData : AbstractRecordData
     {
         //颜色Hex字符串
-        public string Color; 
+        //public string Color; 
         /// <summary>
         /// 赋值方式
         /// </summary>
@@ -20,7 +20,7 @@ namespace Record
         /// <exception cref="NotImplementedException"></exception>
         protected override void AssignData(AbstractRecordData origin, AbstractRecordData other) 
         {
-            (origin as DefinedRecordData).Color = (other as DefinedRecordData).Color;
+            //(origin as DefinedRecordData).Color = (other as DefinedRecordData).Color;
         }
         /// <summary>
         /// 增加数据比较方式
@@ -30,9 +30,10 @@ namespace Record
         /// <returns></returns>
         protected override bool Comparer(AbstractRecordData origin, AbstractRecordData other) 
         {
-            if((origin as DefinedRecordData).Color.Equals((other as DefinedRecordData).Color) )
-                return true;
-            return false;
+            //if((origin as DefinedRecordData).Color.Equals((other as DefinedRecordData).Color) )
+            //    return true;
+            //return false;
+            return true;
         }
         /// <summary>
         /// 给新增加的数据定义recordData的赋值方式
@@ -41,8 +42,8 @@ namespace Record
         /// <param name="transform"></param>
         protected override void GetRecordData(AbstractRecordData recordData, Transform transform) 
         {
-            Color color = transform.GetComponent<MeshRenderer>().sharedMaterial.color;
-            (recordData as DefinedRecordData).Color = ColorToHex(color);
+            //Color color = transform.GetComponent<MeshRenderer>().sharedMaterial.color;
+            //(recordData as DefinedRecordData).Color = ColorToHex(color);
         }
         /// <summary>
         /// 给新增加的数据定义Transform的赋值方式
@@ -51,7 +52,7 @@ namespace Record
         /// <param name="transform"></param>
         protected override void SetRecordData(Transform transform,AbstractRecordData recordData) 
         {
-            transform.GetComponent<MeshRenderer>().sharedMaterial.color = HexToColor((recordData as DefinedRecordData).Color);
+            //transform.GetComponent<MeshRenderer>().sharedMaterial.color = HexToColor((recordData as DefinedRecordData).Color);
         }
         /// <summary>
         /// 颜色转16进制字符串

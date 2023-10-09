@@ -11,14 +11,12 @@ namespace Record
     public class PrefabModifyWindow : EditorWindow
     {
         private static string PrefabLoadPath;
-        private static int defaultSplitLength;
         private static RecordObjectLoadPathConfig RolpC;
         private static string CurrentSceneName;
 
         [MenuItem("PrefabTool/ModifyPrefab")]
         public static void ShowWin()
         {
-            defaultSplitLength = 17;
             RolpC = Resources.Load<RecordObjectLoadPathConfig>("RecorderConfig");
             PrefabLoadPath = "MyGameLogic";
             CurrentSceneName = "DemoRecordingScene";
@@ -76,7 +74,10 @@ namespace Record
         private string GetLoadPath(Object recordObject)
         {
             string temp = AssetDatabase.GetAssetPath(recordObject);
-            temp = temp.Substring(defaultSplitLength);
+            int index = temp.IndexOf("Resources", 0);
+            index +=10;
+            temp = temp.Substring(index);
+            Debug.Log(temp);
             temp = temp.Split('.')[0];
             return temp;
         }
